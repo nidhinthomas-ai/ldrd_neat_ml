@@ -1,3 +1,6 @@
+import shlex
+import time
+import subprocess
 import importlib.resources
 from collections import defaultdict
 import re
@@ -50,6 +53,24 @@ features_of_interest = ["volume_fraction",
                         # if it would matter for polymer phase separatation/
                         # microparticle formation:
                         "viscosity"]
+
+
+def stream_process(process):
+    go = process.poll() is None
+    for line in process.stdout:
+        print(line)
+    return go
+
+
+def run_cmd(command):
+    process = subprocess.Popen(command,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT,
+                               text=True,
+                               shell=True)
+    while stream_process(process):
+        time.sleep(0.1)
+
 
 def preprocess_data(df):
     # Accepts an input DataFrame and produces the typical
@@ -852,3 +873,85 @@ def plot_top_feat_corrs(ranked_feature_names: npt.NDArray,
                 alpha=0.3)
     fig.tight_layout()
     fig.savefig("top_feature_response_corrs.png", dpi=300)
+
+
+@memory.cache
+def kim_park_dl_blob_detection(df: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
+    """
+    Uses the pre-trained blob detection/measurement deep learning
+    approach/model described in:
+    Kim, Y., Park, H. Deep learning-based automated and universal
+    bubble detection and mask extraction in complex two-phase flows.
+    Sci Rep 11, 8940 (2021). https://doi.org/10.1038/s41598-021-88334-0
+
+    The code isn't well-maintained, and I currently need to leverage
+    it and its dependencies with various modifications in a Python 3.6
+    environment on gp160.
+    """
+    # TODO: improve portability to modern Python environments
+    df_new = df.copy()
+    median_droplet_area = np.empty(shape=(df_new.shape[0]),
+                                   dtype=np.float64)
+    num_blobs = np.empty(shape=(df_new.shape[0]),
+                         dtype=np.int64)
+    # needs this Python: /home/treddy/miniforge3/envs/py_36_neat/bin/python
+    # and modified version of original unmaintained source from:
+    # https://github.com/ywflow/BubMask
+    # NOTE: this is terribly non-portable because of need for custom
+    # old Python 3.6 environment + custom changes to the source +
+    # some of its deps...
+    for index, row in tqdm(df_new.iterrows(),
+                           total=df_new.shape[0],
+                           desc="Kim and Park Deep Learning Blob Detection"):
+        img_filepath = row.image_filepath
+        # need an RGB JPG for their DL code...
+        jpg_version = row.image_filepath.replace("tiff", "jpg")
+        # also, easiest to place each image in its own
+        # dir for Kim and Park code...
+        jpg_version_fname = os.path.basename(jpg_version)
+        new_dir = os.path.join("/tmp/", f"{jpg_version_fname}"[:-4])
+        print("new_dir:", new_dir)
+        os.makedirs(new_dir, exist_ok=True)
+        new_jpg_filepath = os.path.join(new_dir, jpg_version_fname)
+        new_jpg_dir = os.path.dirname(new_jpg_filepath)
+        print(f"processing: {new_jpg_filepath}")
+        run_cmd(f"convert '{img_filepath}' '{new_jpg_filepath}'")
+        bub_path = os.path.join("/home/treddy/github_projects/BubMask")
+        weights_path = os.path.join(bub_path, "mask_rcnn_bubble.h5")
+        bubble_path = os.path.join(bub_path, "bubble/bubble.py")
+        results_path = os.path.join(os.getcwd(), "deep_learning_bub_results")
+        os.makedirs(results_path, exist_ok=True)
+        py_36 = "/home/treddy/miniforge3/envs/py_36_neat/bin/python"
+        run_cmd(f"{py_36} {bubble_path} detect --weights={weights_path} --image='{new_jpg_dir}' --results={results_path} --confidence=0.5")
+        base_str = jpg_version_fname[:-4]
+        # this is path is ugly, though I believe partly determined
+        # by the unmaintained DL bubble code
+        results_filepath = os.path.join(results_path,
+                                        base_str,
+                                        base_str,
+                                        base_str + ".txt")
+        blob_counter = 0
+        blob_areas = []
+        with open(results_filepath) as result_file:
+            for line in result_file:
+                if not "Area" in line:
+                    blob_counter += 1
+                    blob_areas.append(float(line.split()[-1]))
+        num_blobs[index] = blob_counter
+        median_droplet_area[index] = np.median(blob_areas)
+    df_new["num_blobs_kim_park"] = num_blobs
+    df_new["median_droplet_area_kim_park"] = median_droplet_area
+    return df_new
+
+
+def produce_df_num_blobs_std_dev(list_series) -> pd.DataFrame:
+    """
+    Accepts a list of Series containing the plate reader
+    blob counts from a variety of blob detection/analysis
+    approaches.
+
+    Returns a DataFrame containing a column with the
+    standard deviation of the blob counts.
+    """
+    std = np.dstack([series.to_numpy() for series in list_series]).std(axis=2)
+    return pd.DataFrame({"std_dev_num_blobs": std.ravel()})
