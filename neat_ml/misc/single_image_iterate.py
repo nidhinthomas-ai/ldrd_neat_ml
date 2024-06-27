@@ -10,6 +10,7 @@ time python neat_ml/misc/single_image_iterate.py --image-path '/home/treddy/LANL
 """
 
 import argparse
+import time
 
 import cv2
 import skimage
@@ -19,6 +20,7 @@ import matplotlib.pyplot as plt
 
 
 def opencv_blob_detection_single_image(image_path, debug: bool = False):
+    start = time.perf_counter()
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
     params = cv2.SimpleBlobDetector_Params()
     params.filterByArea = True
@@ -27,6 +29,8 @@ def opencv_blob_detection_single_image(image_path, debug: bool = False):
     # actual detection of blobs happens:
     keypoints = detector.detect(image)
     num_blobs_img = len(keypoints)
+    end = time.perf_counter()
+    exe_time_sec = end - start
     if debug:
         fig, axs = plt.subplots(1, 2, figsize=(12, 8))
         image_orig = skimage.color.gray2rgb(image)
@@ -45,7 +49,7 @@ def opencv_blob_detection_single_image(image_path, debug: bool = False):
                        radius=int(kp.size/2),
                        thickness=-1)
         axs[1].imshow(blob_image)
-        axs[1].set_title(f"OpenCV SimpleBlobDetector (Found {num_blobs_img} blobs)")
+        axs[1].set_title(f"OpenCV SimpleBlobDetector (Found {num_blobs_img} blobs in {exe_time_sec:.2f} s)")
         fig.tight_layout()
         fig.savefig(f"OpenCV_blob_detection_debug.png",
                     dpi=300,
