@@ -43,7 +43,11 @@ def opencv_blob_detection_single_image(image_path, debug: bool = False):
                        thickness=-1)
         axs[1].imshow(blob_image)
         axs[1].set_title(f"OpenCV SimpleBlobDetector (Found {num_blobs_img} blobs)")
-        fig.savefig(f"OpenCV_blob_detection_debug.png", dpi=300)
+        fig.tight_layout()
+        fig.savefig(f"OpenCV_blob_detection_debug.png",
+                    dpi=300,
+                    pad_inches=0.1,
+                    bbox_inches='tight')
         matplotlib.pyplot.close()
 
 
