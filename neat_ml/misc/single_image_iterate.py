@@ -34,6 +34,13 @@ def opencv_blob_detection_single_image(image_path, debug: bool = False):
                                        None,
                                        (255, 0, 0),
                                        cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+        for kp in keypoints:
+            x, y = kp.pt
+            cv2.circle(blob_image,
+                       (int(x), int(y)),
+                       color=(255, 0, 0),
+                       radius=int(kp.size/2),
+                       thickness=-1)
         axs[1].imshow(blob_image)
         axs[1].set_title(f"OpenCV SimpleBlobDetector (Found {num_blobs_img} blobs)")
         fig.savefig(f"OpenCV_blob_detection_debug.png", dpi=300)
