@@ -4,6 +4,9 @@ parts of the main image analysis workflow, but
 apply them only to a single plate reader image
 for faster iteration/improvement of bubble
 detection/analysis methods.
+
+Sample incantation:
+time python neat_ml/misc/single_image_iterate.py --image-path '/home/treddy/LANL/LDRD_DR_NEAT_data/Images/DEXTRAN (10k) 2~14wt_ (with PEO 10K)/DEXTRAN 12wt_/DEX12wt_,PEO10wt_.tiff'
 """
 
 import argparse
