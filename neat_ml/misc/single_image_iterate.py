@@ -24,7 +24,13 @@ def opencv_blob_detection_single_image(image_path, debug: bool = False):
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
     params = cv2.SimpleBlobDetector_Params()
     params.filterByArea = True
-    params.minArea = 300
+    params.minArea = 30
+    params.maxArea = 1_000_000
+    params.minThreshold = 1
+    params.maxThreshold = 3000
+    params.thresholdStep = 1
+    params.minConvexity = 0.89
+    params.minInertiaRatio = 0.01
     detector = cv2.SimpleBlobDetector_create(params) # type: ignore[attr-defined]
     # actual detection of blobs happens:
     keypoints = detector.detect(image)
