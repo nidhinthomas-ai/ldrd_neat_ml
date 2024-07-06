@@ -27,8 +27,6 @@ from scipy.spatial.distance import cdist
 
 
 def filter_close_contacts(df, pixel_dist=2):
-    # TODO: check if this func makes sense for more than
-    # 2 zoom values combined?
     coords = df.iloc[:, :2]
     dist = cdist(coords, coords)
     # filter as duplicates bubbles within pixel_dist pixels
@@ -48,8 +46,12 @@ def filter_close_contacts(df, pixel_dist=2):
             keep_rows.add(row1)
         if row2 not in keep_rows:
             exclude_rows.add(row2)
-    # should halve the number of close match rows:
-    assert len(keep_rows) + len(exclude_rows) == close_dist_row_indices.size
+    # should halve the number of (unique) close match rows:
+    num_rows_retained = len(keep_rows)
+    num_rows_excluded = len(exclude_rows)
+    total_close_points = np.unique(close_dist_row_indices).size
+    msg = f"{num_rows_retained=}, {num_rows_excluded=}, {total_close_points=}"
+    assert num_rows_retained + num_rows_excluded == total_close_points, msg
     close_rows_to_keep = list(keep_rows)
     # we also want to keep any rows that are not in the exclude data
     # nor in the close contact keep data (the unique bubbles with no close contacts)
@@ -141,7 +143,7 @@ def kim_park_blob_detect_single_image(image_path, debug: bool = False):
     # to detect bubbles across a range of sizes)
     orig_jpg = cv2.imread(new_jpg_filepath)
     list_zoom_dfs = []
-    for zoom in [1.0, 1.5]:
+    for zoom in [0.5, 1.0, 1.5, 2.0]:
         zoom_in_jpg = cv2.resize(orig_jpg,
                                  None,
                                  fx=zoom,
