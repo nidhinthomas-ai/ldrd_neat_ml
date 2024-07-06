@@ -143,7 +143,7 @@ def kim_park_blob_detect_single_image(image_path, debug: bool = False):
     # to detect bubbles across a range of sizes)
     orig_jpg = cv2.imread(new_jpg_filepath)
     list_zoom_dfs = []
-    for zoom in [0.5, 1.0, 1.5, 2.0]:
+    for zoom in [0.125, 0.25, 0.5, 1.0, 1.5, 2.0, 4.0, 8.0]:
         zoom_in_jpg = cv2.resize(orig_jpg,
                                  None,
                                  fx=zoom,
