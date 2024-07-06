@@ -23,6 +23,46 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+from scipy.spatial.distance import cdist
+
+
+def filter_close_contacts(df, pixel_dist=2):
+    # TODO: check if this func makes sense for more than
+    # 2 zoom values combined?
+    coords = df.iloc[:, :2]
+    dist = cdist(coords, coords)
+    # filter as duplicates bubbles within pixel_dist pixels
+    close_dist_row_indices, close_dist_col_indices = np.nonzero(dist < pixel_dist)
+    # ignore self matches of course
+    mask = (close_dist_row_indices != close_dist_col_indices)
+    close_dist_row_indices = close_dist_row_indices[mask]
+    close_dist_col_indices = close_dist_col_indices[mask]
+    if not np.array_equal(np.sort(close_dist_row_indices), np.sort(close_dist_col_indices)):
+        raise ValueError("symmetric dist matrix is not symmetric on indices")
+    # should be safe to filter out one member of the close pair
+    # and keep the other member
+    keep_rows = set()
+    exclude_rows = set()
+    for row1, row2 in zip(close_dist_row_indices, close_dist_col_indices):
+        if row1 not in exclude_rows:
+            keep_rows.add(row1)
+        if row2 not in keep_rows:
+            exclude_rows.add(row2)
+    # should halve the number of close match rows:
+    assert len(keep_rows) + len(exclude_rows) == close_dist_row_indices.size
+    close_rows_to_keep = list(keep_rows)
+    # we also want to keep any rows that are not in the exclude data
+    # nor in the close contact keep data (the unique bubbles with no close contacts)
+    unique_close_indices = np.unique(close_dist_row_indices)
+    far_rows_to_keep = df.index[~np.isin(df.index, unique_close_indices)]
+    rows_to_keep = list(close_rows_to_keep) + list(far_rows_to_keep)
+    rows_to_keep = np.sort(rows_to_keep)
+
+    # we also want to retain the rows that did not have
+    # close contacts
+    boolean_indexer = np.isin(df.index, rows_to_keep)
+    df = df[boolean_indexer]
+    return df
 
 
 def opencv_blob_detection_single_image(image_path, debug: bool = False):
@@ -88,7 +128,6 @@ def kim_park_blob_detect_single_image(image_path, debug: bool = False):
     results_path = os.path.join(os.getcwd(), "debug_deep_learning_bub_results")
     os.makedirs(results_path, exist_ok=True)
     py_36 = "/home/treddy/miniforge3/envs/py_36_neat/bin/python"
-    run_cmd(f"{py_36} {bubble_path} detect --weights={weights_path} --image='{new_jpg_dir}' --results={results_path} --confidence=0.5")
     base_str = jpg_version_fname[:-4]
     # this path is ugly, though I believe partly determined
     # by the unmaintained DL bubble code
@@ -96,12 +135,35 @@ def kim_park_blob_detect_single_image(image_path, debug: bool = False):
                                     base_str,
                                     base_str,
                                     base_str + ".txt")
-    blob_counter = 0
-    blob_data = pd.read_csv(results_filepath)
-    # the column names have whitespaces and quotes I want cleaned up
     clean_col_names = ['x', 'y', 'Orientation', 'Axis_major_length', 'Axis_minor_length', 'Area']
-    blob_data.columns = clean_col_names
-    print(blob_data)
+    # scan over a range of "zoom" values and aggregate
+    # the results (Kim and Park recommend adjusting zoom
+    # to detect bubbles across a range of sizes)
+    orig_jpg = cv2.imread(new_jpg_filepath)
+    list_zoom_dfs = []
+    for zoom in [1.0, 1.5]:
+        zoom_in_jpg = cv2.resize(orig_jpg,
+                                 None,
+                                 fx=zoom,
+                                 fy=zoom,
+                                 interpolation=cv2.INTER_LINEAR)
+        cv2.imwrite(new_jpg_filepath, zoom_in_jpg)
+        run_cmd(f"{py_36} {bubble_path} detect --weights={weights_path} --image='{new_jpg_dir}' --results={results_path} --confidence=0.5")
+        blob_data = pd.read_csv(results_filepath)
+        # the column names have whitespaces and quotes I want cleaned up
+        blob_data.columns = clean_col_names
+        # compensate for zoom:
+        blob_data.x /= zoom
+        blob_data.y /= zoom
+        blob_data.Axis_major_length /= zoom
+        blob_data.Axis_minor_length /= zoom
+        blob_data.Area /= zoom
+        list_zoom_dfs.append(blob_data)
+    blob_data = pd.concat(list_zoom_dfs, ignore_index=True)
+    # try to remove blobs that appear to be duplicates
+    blob_data = filter_close_contacts(blob_data, pixel_dist=2)
+    print("zoom-fused blob_data:\n", blob_data)
+    print("zoom-fused blob_data.shape:", blob_data.shape)
     num_blobs_detected = blob_data.shape[0]
     median_blob_area = np.median(blob_data["Area"])
     end = time.perf_counter()
