@@ -17,6 +17,11 @@ from neat_ml import lib
 import glob
 
 import numpy as np
+import scipy
+import scipy.interpolate
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 
 def main():
@@ -117,6 +122,20 @@ def main():
                                  y_pred=df["median_radii_opencv"],
                                  cbar_label="median OpenCV radii",
                                  )
+    points = df[["WT% DEX", "WT% PEO"]].to_numpy()
+    values = df["median_radii_opencv"].to_numpy()
+    grid_x, grid_y = np.mgrid[0:15:100j, 0:15:100j]
+    for method in ["linear", "nearest", "cubic"]:
+        interp_vals = scipy.interpolate.griddata(points,
+                                                 values,
+                                                 (grid_x, grid_y),
+                                                 method=f"{method}")
+        fig_interp, ax_interp = plt.subplots(1, 1)
+        ax_interp.imshow(interp_vals.T, origin='lower', extent=(0, 15, 0, 15))
+        ax_interp.set_title(f"PEO/DEX binodal estimation via: {method} interpolation")
+        ax_interp.set_ylabel("PEO (wt %)")
+        ax_interp.set_xlabel("Dextran (wt %)")
+        fig_interp.savefig(f"interp_{method}.png", dpi=300)
 
 
 
