@@ -18,6 +18,7 @@ import glob
 
 import numpy as np
 
+from bubble_sam import bubblesam
 
 def main():
     # Of course the image data is too large to
@@ -117,8 +118,24 @@ def main():
                                  y_pred=df["median_radii_opencv"],
                                  cbar_label="median OpenCV radii",
                                  )
-
-
+    # 3 Using Computer Vision
+    # Bubble identification through Segment Anything-2 model (SAM2):
+    df = bubblesam.bubbleSAM (df=df, output_dir = './sam_output/', debug=True)
+    lib.plot_input_data_cesar_MD(df=df,
+                                 title="Plate Reader Image Data for PEO/DEX\n",
+                                 fig_name="plate_reader_image_points_SAM_num_blobs_",
+                                 title_addition="(labels from SAM num blobs)",
+                                 y_pred=df["num_blobs_SAM"],
+                                 norm="symlog",
+                                 cbar_label="symlog scaled blob count",
+                                 )
+    lib.plot_input_data_cesar_MD(df=df,
+                                 title="Plate Reader Image Data for PEO/DEX\n",
+                                 fig_name="plate_reader_image_points_SAM_radii_",
+                                 title_addition="(labels from SAM median radii)",
+                                 y_pred=df["median_radii_SAM"],
+                                 cbar_label="median SAM radii",
+                                 )
 
 
 if __name__ == "__main__":

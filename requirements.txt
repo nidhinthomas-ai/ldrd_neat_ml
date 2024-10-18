@@ -1,0 +1,16 @@
+numpy
+matplotlib
+scipy
+lime
+joblib
+scikit-learn
+ternary
+pandas
+pillow
+scikit-image
+tqdm
+opencv-python
+seaborn
+plotly
+argparse
+jupyter 
