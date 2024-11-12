@@ -22,6 +22,10 @@ import scipy.interpolate
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from mlxtend.plotting import plot_decision_regions
 
 
 def main():
@@ -136,6 +140,24 @@ def main():
         ax_interp.set_ylabel("PEO (wt %)")
         ax_interp.set_xlabel("Dextran (wt %)")
         fig_interp.savefig(f"interp_{method}.png", dpi=300)
+    # TODO: perhaps encapsulate the automatic binodal via SVC
+    # into an abstracted function, maybe with a test?
+    fig_hyper, ax_hyper = plt.subplots(1, 1)
+    clf = make_pipeline(StandardScaler(), SVC(gamma='auto', kernel="rbf"))
+    # TODO: less arbitrary threshold for classification...
+    threshold = 1
+    y = (values > threshold).astype(int)
+    clf.fit(points, y)
+    plot_decision_regions(X=points,
+                          y=y,
+                          clf=clf,
+                          legend=0,
+                          ax=ax_hyper)
+    ax_hyper.set_ylabel("PEO (wt %)")
+    ax_hyper.set_xlabel("Dextran (wt %)")
+    ax_hyper.set_aspect("equal")
+    ax_hyper.set_title(f"Automatic Binodal Prototype (OpenCV median radii; {threshold=})\n (method: SVC rbf kernel)")
+    fig_hyper.savefig("hyper_opencv.png", dpi=300)
 
 
 
