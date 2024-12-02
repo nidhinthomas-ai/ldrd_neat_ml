@@ -2,7 +2,6 @@ numpy
 matplotlib
 scipy
 lime
-joblib
 scikit-learn
 python-ternary
 pandas
