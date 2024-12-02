@@ -10,9 +10,7 @@ import sys
 import torch
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Any, Optional, TypeVar
-
-sys.path.append("./sam2/")
+from typing import List, Dict, Any, Optional
 
 from sam2.build_sam import build_sam2
 from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator

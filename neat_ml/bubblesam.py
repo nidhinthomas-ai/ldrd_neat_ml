@@ -11,8 +11,6 @@ import sys
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-sys.path.append("./sam2/")
-
 import numpy as np
 import torch
 import pandas as pd
@@ -115,6 +113,8 @@ def process_image(
             The initialized SAM model.
     mask_settings : Dict[str, Any]
             Settings for mask generation.
+    debug : bool
+            If debug = True, then it will save the mask image into output folder.
 
     Returns
     -------
@@ -164,7 +164,7 @@ def bubbleSAM(df: pd.DataFrame, output_dir: str, debug: bool = False) -> pd.Data
     num_blobs = np.empty(shape=(df_new.shape[0]), dtype=np.int64)
     sam_model = SAMModel(
         model_config="sam2_hiera_l.yaml",
-        checkpoint_path="./sam2/checkpoints/sam2_hiera_large.pt",
+        checkpoint_path="neat_ml/sam2/checkpoints/sam2_hiera_large.pt",
         device="cuda",
     )
     mask_settings = {
