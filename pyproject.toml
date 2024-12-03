@@ -8,3 +8,9 @@ version = "0.0.1.dev0"
 
 [tool.setuptools.package-data]
 "neat_ml.data" = ["*.xlsx"]
+
+[tool.mypy]
+exclude = "^neat_ml/sam2/*"
+
+[tool.ruff]
+exclude = ["neat_ml/sam2"]

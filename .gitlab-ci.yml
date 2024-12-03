@@ -19,7 +19,7 @@ lint:
       when: always
   allow_failure: false
   script:
-    - mypy .
+    - - mypy --config-file pyproject.toml .
     - ruff check .
 
 # a crude end-to-end test of the entire workflow
