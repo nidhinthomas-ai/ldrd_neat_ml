@@ -6,7 +6,7 @@ before_script:
   - source venv/bin/activate
   - python -m pip install -U mypy ruff pandas-stubs matplotlib xgboost pandas scikit-learn openpyxl jinja2 python-ternary pytest shap interpret types-tqdm types-Pillow scikit-image lightgbm lime opencv-python-headless
   - git submodule update --init --recursive
-  - export PYTHONPATH=$(pwd)/neat_ml/sam2:$PYTHONPATH
+  - pip install -e ./neat_ml/sam2/
 
 stages:
   - lint
@@ -19,7 +19,7 @@ lint:
       when: always
   allow_failure: false
   script:
-    - - mypy --config-file pyproject.toml .
+    - mypy .
     - ruff check .
 
 # a crude end-to-end test of the entire workflow
