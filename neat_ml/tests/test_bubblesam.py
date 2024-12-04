@@ -82,30 +82,35 @@ def test_save_masks(tmp_path, masks):
         assert not any(output_path.iterdir())
 
 
+@pytest.fixture
+def rng():
+    """Fixture to provide a random number generator with a fixed seed."""
+    return np.random.default_rng(42)
+
+
 @pytest.mark.parametrize(
-    "anns",
-    [
-        (
-            [
-                {"segmentation": np.random.rand(100, 100) > 0.5, "area": 5000},
-                {"segmentation": np.random.rand(100, 100) > 0.7, "area": 3000},
-            ]
-        ),
-        ([]),
-        (
-            [
-                {"segmentation": np.ones((100, 100), dtype=bool), "area": 10000},
-            ]
-        ),
-    ],
+    "anns_case",
+    ["random_case", "empty_case", "all_ones_case"],
 )
-def test_show_anns(anns):
+def test_show_anns(anns_case, rng):
     """
     Test the show_anns function.
 
     - Verifies that the function correctly overlays annotations on an image.
     - Ensures that when no annotations are provided, no images are shown.
     """
+    if anns_case == "random_case":
+        anns = [
+            {"segmentation": rng.random((100, 100)) > 0.5, "area": 5000},
+            {"segmentation": rng.random((100, 100)) > 0.7, "area": 3000},
+        ]
+    elif anns_case == "empty_case":
+        anns = []
+    elif anns_case == "all_ones_case":
+        anns = [
+            {"segmentation": np.ones((100, 100), dtype=bool), "area": 10000},
+        ]
+
     plt.figure()
     show_anns(anns)
     ax = plt.gca()
