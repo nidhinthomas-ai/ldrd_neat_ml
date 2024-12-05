@@ -10,7 +10,6 @@ scikit-image
 tqdm
 opencv-python-headless
 seaborn
-jupyter
 mypy
 ruff
 pandas-stubs
