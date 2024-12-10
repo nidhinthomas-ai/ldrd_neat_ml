@@ -7,23 +7,16 @@ Created on Fri Jul 26 21:37:03 2024
 """
 
 import os
-import sys
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-
 import numpy as np
 import torch
 import pandas as pd
 import matplotlib.pyplot as plt
 import cv2
-from typing import List, Dict, Any, Optional, TypeVar
+from typing import List, Dict, Any
 from pathlib import Path
 from tqdm import tqdm
-import joblib
 
 from .SAM import SAMModel
-
-memory = joblib.Memory("joblib_cache", verbose=0)
 
 
 def load_image(image_path: str) -> np.ndarray:
