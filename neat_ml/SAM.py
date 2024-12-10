@@ -6,7 +6,6 @@ Created on Tue Jul 23 11:37:49 2024
 @author: nidhin
 """
 import os
-import sys
 import torch
 import numpy as np
 import pandas as pd
