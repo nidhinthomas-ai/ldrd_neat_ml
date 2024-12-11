@@ -10,4 +10,4 @@ version = "0.0.1.dev0"
 "neat_ml.data" = ["*.xlsx"]
 
 [tool.ruff]
-exclude = ["neat_ml/sam2"|"venv"]
+exclude = ["neat_ml/sam2"]

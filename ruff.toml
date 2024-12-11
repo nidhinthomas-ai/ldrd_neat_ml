@@ -1,0 +1,1 @@
+exclude = ["neat_ml/sam2", "venv"]
