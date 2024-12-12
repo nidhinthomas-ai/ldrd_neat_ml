@@ -24,6 +24,7 @@ def main():
     # commit to the repo, so it is downloaded from Google Drive
     # by the user independently, before running this code
     data_root_path = "/Users/treddy/LANL/LDRD_DR_NEAT_data/Images"
+    data_root_path = "../ldrd_neat_ml_mypy_test/Images"
 
     # let's find all the % PEO / % DEX .tiff filepaths and do
     # a few sanity checks
@@ -59,47 +60,47 @@ def main():
 
     # 1) Using the Hough Transform
 
-    df = lib.skimage_hough_transform(df=df, debug=True)
-    lib.plot_input_data_cesar_MD(df=df,
-                                 title="Plate Reader Image Data for PEO/DEX\n",
-                                 fig_name="plate_reader_image_points_hough_",
-                                 title_addition="(labels from median Hough radii)",
-                                 y_pred=df["median_radii_skimage_hough"],
-                                 cbar_label="median Hough radii",
-                                 )
+    # df = lib.skimage_hough_transform(df=df, debug=True)
+    # lib.plot_input_data_cesar_MD(df=df,
+    #                              title="Plate Reader Image Data for PEO/DEX\n",
+    #                              fig_name="plate_reader_image_points_hough_",
+    #                              title_addition="(labels from median Hough radii)",
+    #                              y_pred=df["median_radii_skimage_hough"],
+    #                              cbar_label="median Hough radii",
+    #                              )
 
-    # 2) Using Blob Detection Techniques
-    df = lib.blob_detection(df=df, debug=True)
-    lib.plot_input_data_cesar_MD(df=df,
-                                 title="Plate Reader Image Data for PEO/DEX\n",
-                                 fig_name="plate_reader_image_points_DoH_sigma",
-                                 title_addition="(labels from median DoH sigma/radii)",
-                                 y_pred=df["median_radii_DoH"],
-                                 cbar_label="median DoH sigma",
-                                 )
-    lib.plot_input_data_cesar_MD(df=df,
-                                 title="Plate Reader Image Data for PEO/DEX\n",
-                                 fig_name="plate_reader_image_points_DoH_num_blobs",
-                                 title_addition="(labels from DoH num blobs)",
-                                 y_pred=df["num_blobs_DoH"],
-                                 norm="symlog",
-                                 cbar_label="symlog scaled blob count",
-                                 )
-    lib.plot_input_data_cesar_MD(df=df,
-                                 title="Plate Reader Image Data for PEO/DEX\n",
-                                 fig_name="plate_reader_image_points_LoG_num_blobs",
-                                 title_addition="(labels from LoG num blobs)",
-                                 y_pred=df["num_blobs_LoG"],
-                                 norm="symlog",
-                                 cbar_label="symlog scaled blob count",
-                                 )
-    lib.plot_input_data_cesar_MD(df=df,
-                                 title="Plate Reader Image Data for PEO/DEX\n",
-                                 fig_name="plate_reader_image_points_LoG_radii",
-                                 title_addition="(labels from median LoG radii)",
-                                 y_pred=df["median_radii_LoG"],
-                                 cbar_label="median LoG radii",
-                                 )
+    # # 2) Using Blob Detection Techniques
+    # df = lib.blob_detection(df=df, debug=True)
+    # lib.plot_input_data_cesar_MD(df=df,
+    #                              title="Plate Reader Image Data for PEO/DEX\n",
+    #                              fig_name="plate_reader_image_points_DoH_sigma",
+    #                              title_addition="(labels from median DoH sigma/radii)",
+    #                              y_pred=df["median_radii_DoH"],
+    #                              cbar_label="median DoH sigma",
+    #                              )
+    # lib.plot_input_data_cesar_MD(df=df,
+    #                              title="Plate Reader Image Data for PEO/DEX\n",
+    #                              fig_name="plate_reader_image_points_DoH_num_blobs",
+    #                              title_addition="(labels from DoH num blobs)",
+    #                              y_pred=df["num_blobs_DoH"],
+    #                              norm="symlog",
+    #                              cbar_label="symlog scaled blob count",
+    #                              )
+    # lib.plot_input_data_cesar_MD(df=df,
+    #                              title="Plate Reader Image Data for PEO/DEX\n",
+    #                              fig_name="plate_reader_image_points_LoG_num_blobs",
+    #                              title_addition="(labels from LoG num blobs)",
+    #                              y_pred=df["num_blobs_LoG"],
+    #                              norm="symlog",
+    #                              cbar_label="symlog scaled blob count",
+    #                              )
+    # lib.plot_input_data_cesar_MD(df=df,
+    #                              title="Plate Reader Image Data for PEO/DEX\n",
+    #                              fig_name="plate_reader_image_points_LoG_radii",
+    #                              title_addition="(labels from median LoG radii)",
+    #                              y_pred=df["median_radii_LoG"],
+    #                              cbar_label="median LoG radii",
+    #                              )
     # try with OpenCV as well:
     df = lib.opencv_blob_detection(df=df, debug=True)
     lib.plot_input_data_cesar_MD(df=df,
@@ -117,8 +118,21 @@ def main():
                                  y_pred=df["median_radii_opencv"],
                                  cbar_label="median OpenCV radii",
                                  )
-
-
+    lib.interpolate_and_plot(df=df,
+                             x_col="WT% DEX",
+                             y_col="WT% PEO",
+                             value_col="median_radii_opencv",
+                             fig_prefix="interp_opencv_",
+                             )
+    lib.svc_classification_and_plot(df=df,
+                                    x_col="WT% DEX",
+                                    y_col="WT% PEO",
+                                    value_col="median_radii_opencv",
+                                    threshold=1,
+                                    methods=["rbf", "linear", "poly"],
+                                    gamma="auto",
+                                    fig_prefix="hyper_opencv_",
+                                    )
 
 
 if __name__ == "__main__":

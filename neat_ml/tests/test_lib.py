@@ -1,5 +1,5 @@
 from neat_ml import lib
-
+import os
 import pytest
 import numpy as np
 import pandas as pd
@@ -180,3 +180,73 @@ def test_plot_ebm_data_non_interacting(tmp_path):
                       fig_title=fig_title,
                       fig_name=tmp_fig,
                       top_feat_count=2)
+    
+@pytest.fixture
+def sample_df() -> pd.DataFrame:
+    """
+    Create a small sample dataframe for testing.
+    This includes columns for 'WT% DEX', 'WT% PEO',
+    and 'median_radii_opencv'.
+    """
+    data = {
+        "WT% DEX": [0, 5, 10, 15],
+        "WT% PEO": [0, 5, 10, 15],
+        "median_radii": [0, 0, 0, 1.5],
+    }
+    return pd.DataFrame(data)
+
+
+def test_interpolate_and_plot(sample_df, tmp_path) -> None:
+    """
+    Test the interpolate_and_plot function with
+    a small DataFrame and verify that it runs
+    without errors and creates output files for
+    each interpolation method.
+    """
+    fig_name_prefix = "interp_"
+    fig_prefix = tmp_path / fig_name_prefix
+    lib.interpolate_and_plot(
+        df=sample_df,
+        x_col="WT% DEX",
+        y_col="WT% PEO",
+        value_col="median_radii",
+        methods=["nearest"],
+        x_min=0,
+        x_max=15,
+        y_min=0,
+        y_max=15,
+        grid_points=10j,
+        fig_prefix=fig_prefix
+    )
+
+    # Check that file is created
+    nearest_file = str(fig_prefix) + "nearest.png"
+    assert os.path.exists(nearest_file), "Expected interpolation output file for 'nearest' not found."
+
+
+def test_svc_classification_and_plot(sample_df, tmp_path)-> None:
+    """
+    Test the svc_classification_and_plot function with a small DataFrame and verify that
+    it runs without errors and creates output files for each SVC kernel method.
+    """
+    fig_name_prefix = "hyper_"
+    fig_prefix = tmp_path / fig_name_prefix
+
+    # Since we have few points, not all kernels may be meaningful, 
+    # but we just need to ensure the code runs.
+    lib.svc_classification_and_plot(
+        df=sample_df,
+        x_col="WT% DEX",
+        y_col="WT% PEO",
+        value_col="median_radii",
+        threshold=1,
+        methods=["rbf", "linear"],
+        gamma="scale",
+        fig_prefix=fig_prefix
+    )
+
+    # Check that files were created
+    rbf_file = str(fig_prefix) + "rbf.png"
+    linear_file = str(fig_prefix) + "linear.png"
+    assert os.path.exists(rbf_file), "Expected SVC output file for 'rbf' kernel not found."
+    assert os.path.exists(linear_file), "Expected SVC output file for 'linear' kernel not found."
