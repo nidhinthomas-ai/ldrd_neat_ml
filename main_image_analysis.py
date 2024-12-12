@@ -132,21 +132,6 @@ def main():
                                     gamma="auto",
                                     fig_prefix="hyper_opencv_",
                                     )
-    lib.interpolate_and_plot(df=df,
-                             x_col="WT% DEX",
-                             y_col="WT% PEO",
-                             value_col="median_radii_opencv",
-                             fig_prefix="interp_opencv_",
-                             )
-    lib.svc_classification_and_plot(df=df,
-                                    x_col="WT% DEX",
-                                    y_col="WT% PEO",
-                                    value_col="median_radii_opencv",
-                                    threshold=1,
-                                    methods=["rbf", "linear", "poly"],
-                                    gamma="auto",
-                                    fig_prefix="hyper_opencv_",
-                                    )
 
 if __name__ == "__main__":
     main()
