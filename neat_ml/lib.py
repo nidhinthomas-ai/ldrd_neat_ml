@@ -862,7 +862,7 @@ def interpolate_and_plot(
     x_col="WT% DEX",
     y_col="WT% PEO",
     value_col="median_radii_opencv",
-    methods=["linear", "nearest", "cubic"],
+    methods=None,
     x_min=0,
     x_max=15,
     y_min=0,
@@ -916,7 +916,8 @@ def interpolate_and_plot(
     """
     points = df[[x_col, y_col]].to_numpy()
     values = df[value_col].to_numpy()
-
+    if methods is None:
+        methods = ["linear", "nearest", "cubic"]
     grid_x, grid_y = np.mgrid[x_min:x_max:grid_points, y_min:y_max:grid_points]
 
     for method in methods:
@@ -944,7 +945,7 @@ def svc_classification_and_plot(
     y_col="WT% PEO",
     value_col="median_radii_opencv",
     threshold=1,
-    methods=["rbf", "linear", "poly"],
+    methods=None,
     gamma="scale",
     fig_prefix="hyper_opencv_",
 ):
@@ -985,6 +986,8 @@ def svc_classification_and_plot(
         filenames (default is "hyper_opencv_").
 
     """
+    if methods is None:
+        methods = ["rbf", "linear", "poly"]
     points = df[[x_col, y_col]].to_numpy()
     values = df[value_col].to_numpy()
     y = (values > threshold).astype(int)
