@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from numpy.testing import assert_array_equal
 from sklearn.ensemble import RandomForestClassifier
+from matplotlib.testing.compare import compare_images
 
 
 def test_cesar_cg_rdf_labels():
@@ -186,12 +187,12 @@ def sample_df() -> pd.DataFrame:
     """
     Create a small sample dataframe for testing.
     This includes columns for 'WT% DEX', 'WT% PEO',
-    and 'median_radii_opencv'.
+    and 'median_radii'.
     """
     data = {
-        "WT% DEX": [0, 5, 10, 15],
-        "WT% PEO": [0, 5, 10, 15],
-        "median_radii": [0, 0, 0, 1.5],
+        "WT% DEX": [0, 0, 5, 10, 15],
+        "WT% PEO": [0, 5, 5, 10, 15],
+        "median_radii": [0, 0, 0, 1.5, 1.5],
     }
     return pd.DataFrame(data)
 
@@ -205,6 +206,7 @@ def test_interpolate_and_plot(sample_df, tmp_path) -> None:
     """
     fig_name_prefix = "interp_"
     fig_prefix = tmp_path / fig_name_prefix
+    reference_dir = "neat_ml/data"
     lib.interpolate_and_plot(
         df=sample_df,
         x_col="WT% DEX",
@@ -218,9 +220,12 @@ def test_interpolate_and_plot(sample_df, tmp_path) -> None:
         grid_points=10j,
         fig_prefix=fig_prefix
     )
-
-    # Check that file is created
+    # Check if the image is comparable to reference images
+    reference_image = os.path.join(reference_dir, f"interp_nearest_ref.png")
     nearest_file = str(fig_prefix) + "nearest.png"
+    diff = compare_images(reference_image, nearest_file, tol=2)
+    assert diff is None, f"Images do not match for method nearest: {diff}"
+    # Check that file is created
     assert os.path.exists(nearest_file), "Expected interpolation output file for 'nearest' not found."
 
 
@@ -231,6 +236,7 @@ def test_svc_classification_and_plot(sample_df, tmp_path)-> None:
     """
     fig_name_prefix = "hyper_"
     fig_prefix = tmp_path / fig_name_prefix
+    reference_dir = "neat_ml/data"
 
     # Since we have few points, not all kernels may be meaningful, 
     # but we just need to ensure the code runs.
@@ -245,8 +251,15 @@ def test_svc_classification_and_plot(sample_df, tmp_path)-> None:
         fig_prefix=fig_prefix
     )
 
-    # Check that files were created
+    # Check if the images are comparable to reference images
+    rbf_ref = os.path.join(reference_dir, f"hyper_rbf_ref.png")
+    linear_ref = os.path.join(reference_dir, f"hyper_linear_ref.png")
     rbf_file = str(fig_prefix) + "rbf.png"
     linear_file = str(fig_prefix) + "linear.png"
+    rbf_diff = compare_images(rbf_ref, rbf_file, tol=2)
+    linear_diff = compare_images(linear_ref, linear_file, tol=2)
+    assert rbf_diff is None, f"Images do not match for method rbf: {rbf_diff}"
+    assert linear_diff is None, f"Images do not match for method linear: {linear_diff}"
+    # Check that files were created
     assert os.path.exists(rbf_file), "Expected SVC output file for 'rbf' kernel not found."
     assert os.path.exists(linear_file), "Expected SVC output file for 'linear' kernel not found."
