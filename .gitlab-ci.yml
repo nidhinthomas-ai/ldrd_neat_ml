@@ -39,5 +39,5 @@ unit_tests:
   allow_failure: false
   script:
     - python -m pip install -v .
-    - ls -al neat_ml/data/
+    - ls -al neat_ml/tests/baseline/
     - cd /tmp && python -m pytest --pyargs neat_ml
