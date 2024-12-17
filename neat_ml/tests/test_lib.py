@@ -206,7 +206,7 @@ def test_interpolate_and_plot(sample_df, tmp_path) -> None:
     """
     fig_name_prefix = "interp_"
     fig_prefix = tmp_path / fig_name_prefix
-    reference_dir = os.path.join(os.path.dirname(__file__), "baseline_images")
+    reference_dir = os.path.join(os.path.dirname(__file__), "baseline")
     lib.interpolate_and_plot(
         df=sample_df,
         x_col="WT% DEX",
@@ -236,7 +236,7 @@ def test_svc_classification_and_plot(sample_df, tmp_path)-> None:
     """
     fig_name_prefix = "hyper_"
     fig_prefix = tmp_path / fig_name_prefix
-    reference_dir = os.path.join(os.path.dirname(__file__), "baseline_images")
+    reference_dir = os.path.join(os.path.dirname(__file__), "baseline")
 
     # Since we have few points, not all kernels may be meaningful, 
     # but we just need to ensure the code runs.
