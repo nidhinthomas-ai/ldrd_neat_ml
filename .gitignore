@@ -26,6 +26,7 @@ __pycache__/
 
 ~$*
 !neat_ml/data/*.png
+!neat_ml/tests/baseline/*.png
 *.png
 *.p
 *.html
