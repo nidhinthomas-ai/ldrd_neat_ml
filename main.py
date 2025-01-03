@@ -343,6 +343,7 @@ def main(random_state: int):
                      'fun': lambda w: w.sum() - 1}]
             res = minimize(objective,
                    w0,
+                   args=(train_predictions,),
                    method='SLSQP', # Chollet recommended Nelder-Mead, but doesn't support constraints
                    bounds=bounds,
                    options={'disp': False, 'maxiter': 10000},
