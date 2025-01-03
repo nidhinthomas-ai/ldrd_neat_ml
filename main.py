@@ -330,7 +330,7 @@ def main(random_state: int):
                                               [train_predictions_soft, train_predictions_hard]):
         # next, let's try minimizing the MSE of the CV predictions
         # to obtain the weights for soft (and hard) voting
-        def objective(weights):
+        def objective(weights, train_predictions):
             y_ens = np.average(train_predictions, axis=1, weights=weights)
             return metrics.mean_squared_error(y_train, y_ens)
         results_list = []

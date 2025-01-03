@@ -10,4 +10,5 @@ version = "0.0.1.dev0"
 "neat_ml.data" = ["*.xlsx"]
 
 [tool.ruff]
-select = ["B006"]
+select = ["E", "F", "B"]
+ignore = ["E501"]

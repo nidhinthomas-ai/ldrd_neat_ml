@@ -221,7 +221,7 @@ def test_interpolate_and_plot(sample_df, tmp_path) -> None:
         fig_prefix=fig_prefix
     )
     # Check if the image is comparable to reference images
-    reference_image = os.path.join(reference_dir, f"interp_nearest_ref.png")
+    reference_image = os.path.join(reference_dir, "interp_nearest_ref.png")
     nearest_file = str(fig_prefix) + "nearest.png"
     diff = compare_images(reference_image, nearest_file, tol=2)
     assert diff is None, f"Images do not match for method nearest: {diff}"
@@ -252,8 +252,8 @@ def test_svc_classification_and_plot(sample_df, tmp_path)-> None:
     )
 
     # Check if the images are comparable to reference images
-    rbf_ref = os.path.join(reference_dir, f"hyper_rbf_ref.png")
-    linear_ref = os.path.join(reference_dir, f"hyper_linear_ref.png")
+    rbf_ref = os.path.join(reference_dir, "hyper_rbf_ref.png")
+    linear_ref = os.path.join(reference_dir, "hyper_linear_ref.png")
     rbf_file = str(fig_prefix) + "rbf.png"
     linear_file = str(fig_prefix) + "linear.png"
     rbf_diff = compare_images(rbf_ref, rbf_file, tol=2)

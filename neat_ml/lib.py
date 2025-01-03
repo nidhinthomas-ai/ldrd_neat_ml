@@ -789,7 +789,7 @@ def build_lime_data(X, model):
     out = np.empty(shape=X.shape, dtype=np.float64)
     explainer_lime = lime.lime_tabular.LimeTabularExplainer(X.to_numpy(),
                                                             feature_names=X.columns)
-    for index, row in tqdm(X.iterrows(),
+    for index, _ in tqdm(X.iterrows(),
                            total=X.shape[0],
                            desc="build LIME feature importance array"):
         exp = explainer_lime.explain_instance(X.to_numpy()[index],
