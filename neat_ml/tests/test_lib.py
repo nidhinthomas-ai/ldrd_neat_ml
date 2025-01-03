@@ -225,8 +225,6 @@ def test_interpolate_and_plot(sample_df, tmp_path) -> None:
     nearest_file = str(fig_prefix) + "nearest.png"
     diff = compare_images(reference_image, nearest_file, tol=2)
     assert diff is None, f"Images do not match for method nearest: {diff}"
-    # Check that file is created
-    assert os.path.exists(nearest_file), "Expected interpolation output file for 'nearest' not found."
 
 
 def test_svc_classification_and_plot(sample_df, tmp_path)-> None:
@@ -260,6 +258,3 @@ def test_svc_classification_and_plot(sample_df, tmp_path)-> None:
     linear_diff = compare_images(linear_ref, linear_file, tol=2)
     assert rbf_diff is None, f"Images do not match for method rbf: {rbf_diff}"
     assert linear_diff is None, f"Images do not match for method linear: {linear_diff}"
-    # Check that files were created
-    assert os.path.exists(rbf_file), "Expected SVC output file for 'rbf' kernel not found."
-    assert os.path.exists(linear_file), "Expected SVC output file for 'linear' kernel not found."
