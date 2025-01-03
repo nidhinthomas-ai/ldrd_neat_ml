@@ -2,7 +2,7 @@ import importlib.resources
 from collections import defaultdict
 import re
 import os
-from typing import Optional, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple, Union
 import numpy as np
 import numpy.typing as npt
 import matplotlib
@@ -858,18 +858,18 @@ def plot_top_feat_corrs(ranked_feature_names: npt.NDArray,
 
 
 def interpolate_and_plot(
-    df,
-    x_col="WT% DEX",
-    y_col="WT% PEO",
-    value_col="median_radii_opencv",
-    methods=None,
-    x_min=0,
-    x_max=15,
-    y_min=0,
-    y_max=15,
-    grid_points=100j,
-    fig_prefix="interp_",
-):
+    df: pd.DataFrame,
+    x_col: str = "WT% DEX",
+    y_col: str = "WT% PEO",
+    value_col: str = "median_radii_opencv",
+    methods: Optional[List[str]] = None,
+    x_min: float = 0,
+    x_max: float = 15,
+    y_min: float = 0,
+    y_max: float = 15,
+    grid_points: Union[float, complex] = 100j,
+    fig_prefix: str = "interp_",
+) -> None:
     """
     Interpolates the given value column over
     the composition grid and plots the results
@@ -918,7 +918,7 @@ def interpolate_and_plot(
     values = df[value_col].to_numpy()
     if methods is None:
         methods = ["linear", "nearest", "cubic"]
-    grid_x, grid_y = np.mgrid[x_min:x_max:grid_points, y_min:y_max:grid_points]
+    grid_x, grid_y = np.mgrid[x_min:x_max:grid_points, y_min:y_max:grid_points] # type: ignore[misc]
 
     for method in methods:
         interp_vals = scipy.interpolate.griddata(
@@ -940,15 +940,15 @@ def interpolate_and_plot(
 
 
 def svc_classification_and_plot(
-    df,
-    x_col="WT% DEX",
-    y_col="WT% PEO",
-    value_col="median_radii_opencv",
-    threshold=1,
-    methods=None,
-    gamma="scale",
-    fig_prefix="hyper_opencv_",
-):
+    df: pd.DataFrame,
+    x_col: str = "WT% DEX",
+    y_col: str = "WT% PEO",
+    value_col: str = "median_radii_opencv",
+    threshold: float = 1,
+    methods: Optional[List[str]] = None,
+    gamma: Union[str, float] = "scale",
+    fig_prefix: str = "hyper_opencv_",
+) -> None:
     """
     Fits an SVC on binary classified data (based on
     thresholding the value_col) for each method
