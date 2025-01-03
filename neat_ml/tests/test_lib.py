@@ -196,8 +196,8 @@ def sample_df() -> pd.DataFrame:
     }
     return pd.DataFrame(data)
 
-
-def test_interpolate_and_plot(sample_df, tmp_path) -> None:
+@pytest.mark.parametrize("method", ["nearest"])
+def test_interpolate_and_plot(sample_df, tmp_path, method) -> None:
     """
     Test the interpolate_and_plot function with
     a small DataFrame and verify that it runs
@@ -212,7 +212,7 @@ def test_interpolate_and_plot(sample_df, tmp_path) -> None:
         x_col="WT% DEX",
         y_col="WT% PEO",
         value_col="median_radii",
-        methods=["nearest"],
+        methods=[method],
         x_min=0,
         x_max=15,
         y_min=0,
@@ -221,13 +221,13 @@ def test_interpolate_and_plot(sample_df, tmp_path) -> None:
         fig_prefix=fig_prefix
     )
     # Check if the image is comparable to reference images
-    reference_image = os.path.join(reference_dir, "interp_nearest_ref.png")
-    nearest_file = str(fig_prefix) + "nearest.png"
+    reference_image = os.path.join(reference_dir, f"interp_{method}_ref.png")
+    nearest_file = str(fig_prefix) + f"{method}.png"
     diff = compare_images(reference_image, nearest_file, tol=2)
-    assert diff is None, f"Images do not match for method nearest: {diff}"
+    assert diff is None, f"Images do not match for method {method}: {diff}"
 
-
-def test_svc_classification_and_plot(sample_df, tmp_path)-> None:
+@pytest.mark.parametrize("kernel_method", ["rbf", "linear"])
+def test_svc_classification_and_plot(sample_df, tmp_path, kernel_method)-> None:
     """
     Test the svc_classification_and_plot function with a small DataFrame and verify that
     it runs without errors and creates output files for each SVC kernel method.
@@ -244,17 +244,15 @@ def test_svc_classification_and_plot(sample_df, tmp_path)-> None:
         y_col="WT% PEO",
         value_col="median_radii",
         threshold=1,
-        methods=["rbf", "linear"],
+        methods=[kernel_method],
         gamma="scale",
         fig_prefix=fig_prefix
     )
 
     # Check if the images are comparable to reference images
-    rbf_ref = os.path.join(reference_dir, "hyper_rbf_ref.png")
-    linear_ref = os.path.join(reference_dir, "hyper_linear_ref.png")
-    rbf_file = str(fig_prefix) + "rbf.png"
-    linear_file = str(fig_prefix) + "linear.png"
-    rbf_diff = compare_images(rbf_ref, rbf_file, tol=2)
-    linear_diff = compare_images(linear_ref, linear_file, tol=2)
-    assert rbf_diff is None, f"Images do not match for method rbf: {rbf_diff}"
-    assert linear_diff is None, f"Images do not match for method linear: {linear_diff}"
+    ref_image = os.path.join(reference_dir, f"hyper_{kernel_method}_ref.png")
+    gen_image = str(fig_prefix) + f"{kernel_method}.png"
+    diff = compare_images(ref_image, gen_image, tol=2)
+    assert diff is None, (
+        f"Images do not match for kernel '{kernel_method}': {diff}"
+        )
