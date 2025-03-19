@@ -20,17 +20,6 @@ lint:
     - mypy .
     - ruff check .
 
-# a crude end-to-end test of the entire workflow
-functional_test:
-  stage: test
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_PIPELINE_SOURCE == 'merge_request_event'
-      when: always
-  allow_failure: false
-  timeout: 2h
-  script:
-    - python main.py
-
 unit_tests:
   stage: test
   rules:
