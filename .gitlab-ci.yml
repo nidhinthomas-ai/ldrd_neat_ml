@@ -4,7 +4,7 @@ before_script:
   - python --version
   - python -m venv venv
   - source venv/bin/activate
-  - python -m pip install -U mypy ruff pandas-stubs matplotlib xgboost pandas scikit-learn==1.5.2 openpyxl jinja2 python-ternary pytest shap interpret types-tqdm types-Pillow scikit-image lightgbm lime opencv-python-headless mlxtend
+  - python -m pip install -U mypy ruff pandas-stubs matplotlib xgboost pandas scikit-learn==1.5.2 openpyxl jinja2 python-ternary pytest shap interpret types-tqdm types-Pillow scikit-image lightgbm lime opencv-python-headless mlxtend plotly kaleido
 
 stages:
   - lint
@@ -29,7 +29,8 @@ functional_test:
   allow_failure: false
   timeout: 2h
   script:
-    - python main.py
+    # - python main.py
+    - cd neat_ml && python figure_plotting.py
 
 unit_tests:
   stage: test
