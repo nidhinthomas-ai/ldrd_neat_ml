@@ -1149,7 +1149,7 @@ if __name__ == "__main__":
         xrange=[0, 21],
         yrange=[0, 38],
         output_path='./Manuscript_Figures/' \
-        'PEO8K_Sodium_Citrate_Phase_Diagram_Experiment_2nd_Time.png'
+        'PEO8K_Sodium_Citrate_Phase_Diagram_Experiment_Literature_Comparison.png'
     )
 
     ## Phase Diagram of microscopy experiments provided by
