@@ -1,0 +1,14 @@
+roots:
+  work: neat_ml/tests/data/
+  results: neat_ml/tests/data/
+
+datasets:
+  - id: Test
+    method: OpenCV
+    system: Test
+    class: ''
+    time_label: ''
+    
+    detection:
+      img_dir: neat_ml/tests/data/images
+      debug: True
